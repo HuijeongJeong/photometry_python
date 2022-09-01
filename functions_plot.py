@@ -101,18 +101,21 @@ def first_event_time_after_reference(eventlog,eventindex,referenceindex,window):
     # referenceindex
     #   - if referenceindex is an integer: the index of reference event
     #   - if reference is an array: the time series of reference event
-    # window: searching window; if there is no event within this window around a reference event, have nan for output
-    import numpy as np
-    import scipy.ndimage as nd
+    # window: size of searching window
+    #   - if there is no event within this window from a reference event, have nan for output
 
+    import numpy as np
     if isinstance(referenceindex, int):
         reference_times = eventlog[eventlog[:, 0] == referenceindex, 1]
     else:
         reference_times = referenceindex
+    event_times = eventlog[eventlog[:,0]==eventindex,1]
+    nrefs = len(reference_times)
 
+    first_event_times = np.full((nrefs,1),np.nan)
     for i,v in enumerate(reference_times):
-
-
+        first_event_times[i] = next(j for j,w in enumerate(event_times) if (w>v) & (w-v<=window))
+    return first_event_times
 
 def plot_events(eventlog,eventindex,referenceindex,window,binsize,resolution,clr,ylabels,fig):
     import matplotlib.pyplot as plt
