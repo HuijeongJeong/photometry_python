@@ -17,8 +17,8 @@ name = 'ndx-namboodiri-metadata'
 ns_path = 'C://Users//Huijeong Jeong//ndx-namboodiri-metadata//spec//ndx-namboodiri-metadata.namespace.yaml'
 load_namespaces(ns_path)
 
-@register_class('LabMetaDataExtension',name)
-class LabMetaDataExtension()
+#@register_class('LabMetaDataExtension',name)
+#class LabMetaDataExtension()
 
 
 import numpy as np
@@ -33,16 +33,12 @@ def find_files(pattern, path):
     return result
 
 
-# photometry_rig_number = 1
-# photometry_manufacturer = 'doric'
 recording_area = 'NAcc'
-# recording_coordinate = [1.3,-1.4,-4.2] #AP, ML, DV (mm)
 sensor = 'dLight1.3b'
 experimenter = 'Joey'
 
 doric_channel_description = ['405', '470', 'TTL']
 doric_channel_name = ['AIn-1 - Dem (AOut-1)','AIn-1 - Dem (AOut-2)','DI/O-2']
-# imaging_rate = 120000. #Hz
 
 path = 'D:\OneDrive - University of California, San Francisco\Huijeong'
 session_file = find_files('sessions.csv',path)
@@ -91,12 +87,6 @@ nwbfile = NWBFile(
     institution = 'University of California, San Francisco'
 )
 
-# device = nwbfile.create_device(
-#     name = 'photometry',
-#     description = 'photometry'+str(photometry_rig_number),
-#     manufacturer = photometry_manufacturer
-# )
-
 photometry_data = pd.read_csv(photometry_files[iF])
 for iCh in range(len(doric_channel_description)):
     if iCh==len(doric_channel_description)-1:
@@ -127,72 +117,3 @@ time_series = TimeSeries(
 eventlog = BehavioralEvents(time_series=time_series, name = 'EventLog')
 behavior_module.add(eventlog)
 
-
-# with NWBHDF5IO('behavior_data.nwb')
-
-# imaging_plane = nwbfile.create_imaging_plane(
-#     name = 'ImagingPlane',
-#     optical_channel = optical_channel,
-#     imaging_rate = imaging_rate,
-#     description = recording_area,
-#     device = device,
-#     excitation_lambda = optical_emission,
-#     indicator = sensor,
-#     location = recording_area,
-#     grid_spacing= [np.nan],
-#     grid_spacing_unit= 'none',
-#     origin_coords= recording_coordinate,
-#     origin_coords_unit= 'micrometer'
-# )
-#
-# rt_region = ps.create_roi_table_region(
-#     region=[0, 1],
-#     description='the first of two ROIs'
-# )
-#
-# photometry_module = nwbfile.create_processing_module(
-#     name='photometry',
-#     description='photometry data'
-# )
-#
-# img_seg = ImageSegmentation()
-#
-# ps = img_seg.create_plane_segmentation(
-#     name='PlaneSegmentation',
-#     description='photometry data does not need plan segmentation',
-#     imaging_plane=imaging_plane,
-# )
-# photometry_module.add(img_seg)
-#
-# rt_channel = ps.create_roi_table_region(
-#     region=[0, 1],
-#     description='two different channels' #405nm and 470nm
-# )
-
-
-# img_seg = ImageSegmentation()
-# ps = img_seg.create_plane_segmentation(
-#     name='PlaneSegmentation',
-#     description='output from segmenting my favorite imaging plane',
-#     imaging_plane=imaging_plane,
-# )
-#
-# ps = img_seg.create_plane_segmentation(
-#     name='PlaneSegmentation',
-#     description='output from segmenting my favorite imaging plane',
-#     imaging_plane=imaging_plane,
-#     reference_images=image_series1  # optional
-# )
-#
-# ophys_module.add(img_seg)
-#
-# data = pd.read_csv(photometry_file[iF])
-#
-#
-#
-# nwbfile.ophys.RoiResponseSeries(
-#     name = recording_method+'data',
-#     data = data[['AIn-1 - Dem (AOut-1)','AIn-1 - Dem (AOut-2)']],
-#     unit = 'mV',
-#     roi =
-# )
