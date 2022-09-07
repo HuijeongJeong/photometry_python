@@ -10,8 +10,8 @@ def findfiles(directory,mousename,fileformat,foldername,daylist):
 	files = sorted(files, key=days)
 
 	if len(daylist)>0:
-		outdaylist = [i for i,v in enumerate(days) if v not in daylist]
-		files.remove(outdaylist)
+		indaylist = [i for i,v in enumerate([days(f) for f in files]) if v in daylist]
+		files = [files[i] for i in indaylist]
 
 	return files
 
