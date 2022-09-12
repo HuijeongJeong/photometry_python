@@ -5,8 +5,7 @@ def findfiles(directory,mousename,fileformat,foldername,daylist):
 
 	files = [os.path.join(root, name)
 			 for root, dirs, files in os.walk(os.path.join(directory, mousename)) if foldername in root
-			 for name in files
-			 for f in fileformat if name.endswith(f)]
+			 for name in files if os.path.splitext(name)[1] in fileformat]
 	files = sorted(files, key=days)
 
 	if len(daylist)>0:
