@@ -118,7 +118,20 @@ def first_event_time_after_reference(eventlog,eventindex,referenceindex,window):
             first_eventtime[i] = temp[0]
     return first_eventtime
 
+def caculate_auc(signal,time,reference_times,window):
+    # calculate area under curve of signal during specified window from reference event
 
+    # referenceindex
+    #   - if referenceindex is an integer: the index of reference event
+    #   - if reference is an array: the time series of reference event
+    # window: window for calculation of auc
+    import numpy as np
+
+    nrefs = len(reference_times)
+    auc = np.full(nrefs,np.nan)
+    for i,v in enumerate(reference_times):
+        inwindow = np.logical_and(time>=v+window[0],time<=v+window[1])
+        auc[i] = np.trapz(signal(inwindow),time(inwindow))
 
 def plot_events(eventlog,eventindex,referenceindex,window,binsize,resolution,clr,ylabels,fig):
     import numpy as np
