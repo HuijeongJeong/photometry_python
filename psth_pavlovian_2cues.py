@@ -37,6 +37,27 @@ for mousename in mouselist:
 
     for iD,v in enumerate(dfffiles):
         print(v)
+        psthfiles, _ = findfiles(os.path.join(directory, mousename, foldername), '.png', [days[iD]])
+        if sum([f=='psth.png' for f in [os.path.basename(x) for x in psthfiles]]) >0:
+            continue
+
+        matfile, _ = findfiles(os.path.join(directory, mousename, foldername), '.mat', [days[iD]])
+        if len(matfile)==0:
+            print('no event file!')
+            continue
+        elif len(matfile)>1:
+            print('there are more than one event file.\n')
+            print(matfile)
+            matfileidx = input('please specify the correct one or enter none if you want to skip.\n')
+            if matfileidx=='none':
+                continue
+            else:
+                matfile = matfile[int(matfileidx)]
+        else:
+            matfile = matfile[0]
+        filepath = os.path.dirname(matfile)
+        matfile = load_mat(matfile)
+
         #if '.doric' in v:
         #    photometryfile = load_doric(v, version, doricdatanames, datanames_new)
         #elif '.ppd' in v:
