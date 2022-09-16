@@ -31,19 +31,22 @@ resolution = 5                                                                  
 clr = ['black']
 
 for mousename in mouselist:
-    photometryfiles = findfiles(directory, mousename, ['.doric', '.ppd'], foldername, daylist)
-    matfiles = findfiles(directory, mousename, '.mat', foldername, daylist)
+    #dfffiles,_ = findfiles(os.path.join(directory, mousename,foldername), ['.doric', '.ppd'], daylist)
+    dfffiles, _ = findfiles(os.path.join(directory, mousename, foldername), '.p', daylist)
+    matfiles,_ = findfiles(os.path.join(directory, mousename,foldername), '.mat', daylist)
 
-    for iD,v in enumerate(photometryfiles):
+    for iD,v in enumerate(dfffiles):
         print(v)
-        if '.doric' in v:
-            photometryfile = load_doric(v, version, doricdatanames, datanames_new)
-        elif '.ppd' in v:
-            photometryfile = load_ppd(v, ppddatanames, datanames_new)
+        #if '.doric' in v:
+        #    photometryfile = load_doric(v, version, doricdatanames, datanames_new)
+        #elif '.ppd' in v:
+        #    photometryfile = load_ppd(v, ppddatanames, datanames_new)
         matfile = load_mat(matfiles[iD])
         filepath = os.path.dirname(matfiles[iD])
 
-        dff, time = preprocessing(photometryfile, matfile, binsize_interpolation,cs1index)
+        dff = load_pickle(v)
+        dff = dff[0]
+        #dff, time = preprocessing(photometryfile, matfile, binsize_interpolation,cs1index)
 
         cuetimes = matfile['eventlog'][matfile['eventlog'][:,0]==cs1index,1]
         cuetimes = cuetimes[range(0,len(cuetimes),2)]
@@ -51,6 +54,6 @@ for mousename in mouselist:
         fig = plt.figure()
         subfigs = fig.subfigures(2,1)
 
-        plot_signal(dff,time,matfile['eventlog'],[cuetimes],window,resolution_signal,clr,['Trials','dF/F (%)'],subfigs.flat[0])
+        plot_signal(dff['dff'],dff['time'],matfile['eventlog'],[cuetimes],window,resolution_signal,clr,['Trials','dF/F (%)'],subfigs.flat[0])
         plot_events(matfile['eventlog'],lickindex,[cuetimes],window,binsize,resolution,clr,['Trials','Lick rate (Hz)'],subfigs.flat[1])
         fig.savefig(os.path.join(filepath,'psth.png'))
