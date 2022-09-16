@@ -36,21 +36,41 @@ for mousename in mouselist:
 
     for iD,v in enumerate(photometryfiles):
         print(v)
+        psthfiles, _ = findfiles(os.path.join(directory, mousename, foldername), '.png', [days[iD]])
+        if sum([f=='psth.png' for f in [os.path.basename(x) for x in psthfiles]]) >0:
+            continue
+
+        matfile, _ = findfiles(os.path.join(directory, mousename, foldername), '.mat', [days[iD]])
+        if len(matfile)==0:
+            print('no event file!')
+            continue
+        elif len(matfile)>1:
+            print('there are more than one event file.\n')
+            print(matfile)
+            matfileidx = input('please specify the correct one or enter none if you want to skip.\n')
+            if matfileidx=='none':
+                continue
+            else:
+                matfile = matfile[int(matfileidx)]
+        else:
+            matfile = matfile[0]
+        filepath = os.path.dirname(matfile)
+        matfile = load_mat(matfile)
+
         if '.doric' in v:
             photometryfile = load_doric(v, version, doricdatanames, datanames_new)
         elif '.ppd' in v:
             photometryfile = load_ppd(v, ppddatanames, datanames_new)
-        matfile = load_mat(matfiles[iD])
-        filepath = os.path.dirname(matfiles[iD])
+
 
         dff, time = preprocessing(photometryfile, matfile, binsize_interpolation,cs1index)
 
         cuetimes = matfile['eventlog'][matfile['eventlog'][:,0]==cs1index,1]
         cuetimes = cuetimes[range(0,len(cuetimes),2)]
 
+
         fig = plt.figure()
         subfigs = fig.subfigures(2,1)
-
         plot_signal(dff,time,matfile['eventlog'],[cuetimes],window,resolution_signal,clr,['Trials','dF/F (%)'],subfigs.flat[0])
-        plot_events(matfile['eventlog'],lickindex,[cuetimes],window,binsize,resolution,clr,['Trials','Lick rate (Hz)'],subfigs.flat[1])
+        plot_events(matfile['eventlog'], lickindex, [cuetimes], window, binsize, resolution, clr, ['Trials', 'Lick rate (Hz)'], subfigs.flat[1])
         fig.savefig(os.path.join(filepath,'psth.png'))
