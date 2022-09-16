@@ -212,3 +212,14 @@ def load_ppd(filename,datanames,datanames_new):
 	for i,v in enumerate(datanames):
 		data[datanames_new[i]] = data_temp[v]
 	return data
+
+def load_pickle(filename):
+	import pickle
+	objects = []
+	with (open(filename, "rb")) as openfile:
+		while True:
+			try:
+				objects.append(pickle.load(openfile))
+			except EOFError:
+				break
+	return objects
