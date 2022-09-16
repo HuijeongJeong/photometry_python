@@ -1,18 +1,30 @@
-def findfiles(directory,mousename,fileformat,foldername,daylist):
+def findfiles(directory,fileformat,daylist):
+	# find all files with fileformat under directory
+	# if daylist is specified, only find files in certain days
+	# ex) daylist = [3,5,6]: search files in directory/Day3, directory/Day5, directory/Day6
+	# if daylist is empty, search all files in directory
 	import os
-	def days(doricfile):
-		return int(os.path.dirname(doricfile).split('Day')[-1])
+	def findday(file):
+		if 'Day' in file:
+			import re
+			return int(re.split('Day|_',os.path.basename(os.path.dirname(file)))[1])
+		else:
+			return 0
 
 	files = [os.path.join(root, name)
-			 for root, dirs, files in os.walk(os.path.join(directory, mousename)) if foldername in root
+			 for root, dirs, files in os.walk(directory)
 			 for name in files if os.path.splitext(name)[1] in fileformat]
-	files = sorted(files, key=days)
+	files = sorted(files, key=findday)
+	days = [findday(f) for f in files]
+	files = [x for x,y in zip(files,days) if y>0]
+	days = [x for x in days if x>0]
 
 	if len(daylist)>0:
-		indaylist = [i for i,v in enumerate([days(f) for f in files]) if v in daylist]
+		indaylist = [i for i,v in enumerate(days) if v in daylist]
 		files = [files[i] for i in indaylist]
+		days = [days[i] for i in indaylist]
 
-	return files
+	return files, days
 
 
 def load_mat(filename):
