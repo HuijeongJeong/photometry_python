@@ -3,7 +3,7 @@ from functions.photometry import *
 import os
 import pickle
 
-directory = 'D:/OneDrive - University of California, San Francisco/Huijeong'
+directory = 'D:/OneDrive - UCSF/Huijeong'
 dathetlist = ['M2','M3','M4','M5','M6','M7']
 datwtlist = ['F1']
 wtlist = ['F1','F2','F3','M1','M2','M3']
@@ -20,15 +20,9 @@ binsize_interpolation = 10
 
 cs1index = 15
 
-for im,mousename in enumerate(mouselist):
+for im,mousename in enumerate(mouselist[-2:]):
     photometryfiles, _ = findfiles(os.path.join(directory,mousename,'pavlovian'), ['.doric', '.ppd'], daylist)
-    photometryfiles_rr, _ = findfiles(os.path.join(directory,mousename,'randomrewards'), ['.doric', '.ppd'], daylist)
-    probetestidx = [i for i,v in enumerate(photometryfiles) if 'probetest' in v]
-    if len(probetestidx)>0:
-        photometryfiles = photometryfiles[:probetestidx[0]]
-    photometryfiles = photometryfiles_rr[:1]+photometryfiles[:2]+photometryfiles[-2:]
-
-    for iD,v in enumerate(photometryfiles):
+    for iD,v in enumerate(photometryfiles[1:]):
         print(v)
         try:
             matfile, _ = findfiles(os.path.dirname(v),'.mat',[])
