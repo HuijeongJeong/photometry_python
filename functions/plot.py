@@ -175,3 +175,21 @@ def plot_signal(signal,timestamp,eventlog,referenceindex,window,resolution,clr,y
     ax2.set_xlabel('Time (s)')
     ax1.set_ylabel(ylabels[0])
     ax2.set_ylabel(ylabels[1])
+
+
+def cumulative_analysis(signal,xmaxwrtchangetrial):
+    import numpy as np
+    from numpy.linalg import norm
+    signalx = np.arange(1,len(signal)+1)/(len(signal)+1)
+    cumsignal = np.cumsum(signal)/np.sum(signal)
+    d = [norm(np.cross(np.subtract([1,1],[0,0]),np.subtract([x,y],[1,1])))/norm(np.subtract([1,1],[0,0])) for x,y in zip(signalx,cumsignal)]
+    abruptness = max(d)
+    changetrial = d.index(abruptness)
+
+    if ~np.isnan(xmaxwrtchangetrial):
+        cumsignal = np.cumsum(signal[:round(changetrial*xmaxwrtchangetrial)])/np.sum(signal[:round(changetrial*xmaxwrtchangetrial)])
+        signalx = np.arange(1,round(changetrial*xmaxwrtchangetrial)+1)/(round(changetrial*xmaxwrtchangetrial)+1)
+        d = [norm(np.cross(np.subtract([1,1],[0,0]),np.subtract([x,y],[1,1])))/norm(np.subtract([1,1],[0,0])) for x,y in zip(signalx,cumsignal)]
+        abruptness = max(d)
+
+    return abruptness, changetrial, cumsignal, signalx
