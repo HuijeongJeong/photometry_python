@@ -1,6 +1,5 @@
 from functions.load import *
 from functions.plot import *
-from functions.photometry import *
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,31 +32,34 @@ licks = np.full((len(mouselist),4),np.nan)
 bgdrwrsp = np.full((len(mouselist),1),np.nan)
 
 for im,mousename in enumerate(mouselist):
-    photometryfiles, _ = findfiles(os.path.join(directory,mousename,'pavlovian'), ['.doric', '.ppd'], daylist)
-    photometryfiles_rr, _ = findfiles(os.path.join(directory,mousename,'randomrewards'), ['.doric', '.ppd'], daylist)
-    probetestidx = [i for i,v in enumerate(photometryfiles) if 'probetest' in v]
+    dfffiles, _ = findfiles(os.path.join(directory, mousename, 'pavlovian'), '.p', daylist)
+    dfffiles_rr, _ = findfiles(os.path.join(directory, mousename, 'randomrewards'), '.p', daylist)
+    probetestidx = [i for i,v in enumerate(dfffiles) if 'probetest' in v]
     if len(probetestidx)>0:
-        photometryfiles = photometryfiles[:probetestidx[0]]
-    photometryfiles = photometryfiles_rr[:1]+photometryfiles[:2]+photometryfiles[-2:]
+        dfffiles = dfffiles[:probetestidx[0]]
+    dfffiles = dfffiles_rr[:1] + dfffiles[:2] + dfffiles[-2:]
 
-    for iD,v in enumerate(photometryfiles):
+    for iD,v in enumerate(dfffiles):
         print(v)
         try:
             matfile, _ = findfiles(os.path.dirname(v),'.mat',[])
             matfile = load_mat(matfile[0])
 
-            if '.doric' in v:
-                photometryfile = load_doric(v, version, doricdatanames, datanames_new)
-            elif '.ppd' in v:
-                photometryfile = load_ppd(v, ppddatanames, datanames_new)
+            dff = load_pickle(v)
+            dff = dff[0]
 
-            dff, time = preprocessing(photometryfile, matfile, binsize_interpolation,cs1index)
+            #if '.doric' in v:
+            #    photometryfile = load_doric(v, version, doricdatanames, datanames_new)
+            #elif '.ppd' in v:
+            #    photometryfile = load_ppd(v, ppddatanames, datanames_new)
+
+            #dff, time = preprocessing(photometryfile, matfile, binsize_interpolation,cs1index)
 
             if iD==0:
                 firstlicktimes = first_event_time_after_reference(matfile['eventlog'], lickindex, bgdrewardindex, 10000)
                 rewardtimes = matfile['eventlog'][matfile['eventlog'][:,0]==bgdrewardindex,1]
-                dopaminebaseline = calculate_auc(dff, time, rewardtimes - np.diff(window), window)
-                dopaminerwrsp = calculate_auc(dff, time, firstlicktimes, window)-dopaminebaseline
+                dopaminebaseline = calculate_auc(dff['dff'], dff['time'], rewardtimes - np.diff(window), window)
+                dopaminerwrsp = calculate_auc(dff['dff'], dff['time'], firstlicktimes, window)-dopaminebaseline
 
                 bgdrwrsp[im] = np.mean(dopaminerwrsp/1000)
             else:
@@ -69,9 +71,9 @@ for im,mousename in enumerate(mouselist):
                 lickbaseline = [sum(np.logical_and(licktimes>=x-windowsize_lick,licktimes<x)) for x in cuetimes]
                 lickcue = [sum(np.logical_and(licktimes>=x,licktimes<x+windowsize_lick))for x in cuetimes]
 
-                dopaminebaseline = calculate_auc(dff, time, cuetimes - np.diff(window), window)
-                dopaminecuersp = calculate_auc(dff, time, cuetimes, window)-dopaminebaseline
-                dopaminerwrsp = calculate_auc(dff, time, firstlicktimes, window)-dopaminebaseline
+                dopaminebaseline = calculate_auc(dff['dff'], dff['time'], cuetimes - np.diff(window), window)
+                dopaminecuersp = calculate_auc(dff['dff'], dff['time'], cuetimes, window)-dopaminebaseline
+                dopaminerwrsp = calculate_auc(dff['dff'], dff['time'], firstlicktimes, window)-dopaminebaseline
 
                 cuersp[im,iD-1] = np.mean(dopaminecuersp/1000)
                 rwrsp[im,iD-1] = np.mean(dopaminerwrsp/1000)
