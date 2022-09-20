@@ -24,7 +24,7 @@ def synchronize_timestamps(photometryfile,matfile,ttl2matindex):
 
     window_mat = [0, matfile['eventlog'][matfile['eventlog'][:,0]==0,1][0]]
 
-    if len(window_doric)!=2 or len(window_mat)!=2:
+    if len(window_doric)!=2 or np.diff(window_mat)==0:
         ref_doric = [i+1 for i,v in enumerate(np.diff(photometryfile['ttl2'])) if v==1]
         ref_mat = matfile['eventlog'][matfile['eventlog'][:,0]==ttl2matindex,1]
         if len(ref_doric)<len(ref_mat):
@@ -43,6 +43,8 @@ def synchronize_timestamps(photometryfile,matfile,ttl2matindex):
 
 def preprocessing(photometryfile,matfile,binsize_interpolation,ttl2matindex):
     mat_endtime = matfile['eventlog'][matfile['eventlog'][:,0]==0,1][0]
+    if mat_endtime==0:
+        mat_endtime = matfile['eventlog'][matfile['eventlog'][:,0]==ttl2matindex,1][-1]
     photometryfile['time'] = synchronize_timestamps(photometryfile,matfile,ttl2matindex)
     dff,time = calculate_dff(photometryfile['405'], photometryfile['470'], photometryfile['time'], [0, mat_endtime], binsize_interpolation)
     return dff, time
