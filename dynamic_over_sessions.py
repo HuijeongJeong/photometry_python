@@ -1,17 +1,10 @@
 from functions.load import *
 from functions.plot import *
+from functions.general import *
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import compress
-
-def flatten(lst):
-    a = [item for sublist in lst for item in sublist]
-    return a
-
-def movmean(lst,n,step):
-    a = [np.nanmean(lst[np.arange(0,n)+i]) for i in range(0,len(lst)-step+1,step)]
-    return a
 
 directory = 'D:/OneDrive - UCSF/Huijeong'
 dathetlist = ['M2','M3','M4','M5','M6','M7']
