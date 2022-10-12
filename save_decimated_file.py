@@ -3,14 +3,15 @@ from functions.photometry import *
 import os
 import pickle
 
-directory = 'D:/OneDrive - UCSF/Huijeong'
+directory = 'D:\OneDrive - University of California, San Francisco\Huijeong'
 dathetlist = ['M2','M3','M4','M5','M6','M7']
 datwtlist = ['F1']
 wtlist = ['F1','F2','F3','M1','M2','M3']
-mouselist = ['HJ_FP_datHT_stGtACR_'+i for i in dathetlist] + ['HJ_FP_datWT_stGtACR_'+i for i in datwtlist]\
-            + ['HJ_FP_WT_stGtACR_'+i for i in wtlist]
+#mouselist = ['HJ_FP_datHT_stGtACR_'+i for i in dathetlist] + ['HJ_FP_datWT_stGtACR_'+i for i in datwtlist]\
+#            + ['HJ_FP_WT_stGtACR_'+i for i in wtlist]
+mouselist = ['HJ_FP_WT_stGtACR_M3']
 foldername = 'pavlovian'
-daylist = []
+daylist = [6]
 
 version = 5
 doricdatanames = ['AIn-1 - Dem (AOut-1)', 'AIn-1 - Dem (AOut-2)', 'DI--O-1','DI--O-2']
@@ -20,9 +21,11 @@ binsize_interpolation = 10
 
 cs1index = 15
 
-for im,mousename in enumerate(mouselist[-2:]):
-    photometryfiles, _ = findfiles(os.path.join(directory,mousename,'pavlovian'), ['.doric', '.ppd'], daylist)
-    for iD,v in enumerate(photometryfiles[1:]):
+for im,mousename in enumerate(mouselist):
+    photometryfiles, _ = findfiles(os.path.join(directory,mousename,foldername), ['.doric', '.ppd'], daylist)
+    #idx = [i for i,v in enumerate(photometryfiles) if 'optotest' in v]
+    #photometryfiles = [photometryfiles[i] for i in idx]
+    for iD,v in enumerate(photometryfiles):
         print(v)
         try:
             matfile, _ = findfiles(os.path.dirname(v),'.mat',[])

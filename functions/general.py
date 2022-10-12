@@ -4,12 +4,20 @@ def flatten(lst):
 
 def movmean(lst,n,step,dim):
     import numpy as np
-    if dim == 0:
-        a = [[np.nanmean(lst[np.arange(0, n) + i, j]) for i in range(0, len(lst) - step + 1, step)]
-             for j in range(0, np.size(lst, 1))]
-    elif dim == 1:
-        a = [[np.nanmean(lst[j,np.arange(0,n)+i]) for i in range(0,len(lst)-step+1,step)]
-             for j in range(0, np.size(lst, 0))]
+
+    try:
+        if np.ndim(lst)>1:
+            if dim == 0:
+                a = [[np.nanmean(lst[np.arange(0, n) + i, j]) for i in range(0, np.size(lst, 0) - n + 1, step)]
+                     for j in range(0, np.size(lst, 1))]
+            elif dim == 1:
+                a = [[np.nanmean(lst[j, np.arange(0, n)+i]) for i in range(0, np.size(lst, 1) - n + 1, step)]
+                     for j in range(0, np.size(lst, 0))]
+        else:
+            a = [np.nanmean(lst[np.arange(0, n)+i]) for i in range(0, len(lst)-n+1, step)]
+    except:
+        n
+
     return a
 
 def peaksearch(lst,threshold,option):
@@ -22,13 +30,14 @@ def peaksearch(lst,threshold,option):
 
     if option != 'nan':
         if option == 'max':
-            tempidx = [np.argmax(x) for x in peakval]
+            peakidx = [x[np.argmax(y)] if len(x) > 0 else np.nan for x, y in zip(peakidx, peakval)]
+            peakval = [np.max(x) if len(x)>0 else np.nan for x in peakval]
         elif option == 'first':
-            tempidx = np.repeat(0, len(lst))
+            peakidx = [x[0] if len(x) > 0 else np.nan for x in peakidx]
+            peakval = [x[0] if len(x) > 0 else np.nan for x in peakval]
         elif option == 'last':
-            tempidx = np.repeat(-1, len(lst))
-        peakidx = [x[y] for x, y in zip(peakidx, tempidx)]
-        peakval = [x[y] for x, y in zip(peakval, tempidx)]
+            peakidx = [x[-1] if len(x) > 0 else np.nan for x in peakidx]
+            peakval = [x[-1] if len(x) > 0 else np.nan for x in peakval]
 
     return peakidx, peakval
 

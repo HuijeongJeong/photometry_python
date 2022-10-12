@@ -6,12 +6,12 @@ import os.path
 
 # parameters to load data
 # the structure of data folder: directory>mousename>foldername>Day
-directory = 'D:/OneDrive - UCSF/Huijeong'
+directory = 'D:/OneDrive - University of California, San Francisco/Huijeong'
 foldername = 'pavlovian'
 daylist = [5,6]
 
 
-mouselist = ['HJ_FP_WT_stGtACR_M3']     # list of mousename
+mouselist = ['HJ_FP_datHT_stGtACR_M1','HJ_FP_datHT_stGtACR_M2','HJ_FP_datHT_stGtACR_M4','HJ_FP_datHT_stGtACR_M6']     # list of mousename
 foldername = 'randomrewards'
 daylist = []                            # If you specify daylist, it will only produce plot for that days. If it is empty, it will run all days available
 
@@ -34,31 +34,37 @@ resolution = 5                          # convolution resolution for lick; sigma
 clr = ['black']
 
 for mousename in mouselist:
-    photometryfiles = findfiles(directory, mousename, ['.doric', '.ppd'], foldername, daylist)  # search all photometry files under mousename
-    matfiles = findfiles(directory, mousename, '.mat', foldername, daylist)                     # search all matlab files under mousename
+    dfffiles, _ = findfiles(os.path.join(directory, mousename, foldername), '.p', daylist)
 
-    for iD,v in enumerate(photometryfiles):
+    for iD,v in enumerate(dfffiles):
         print(v)
 
-        # load doric file
-        if '.doric' in v:
-            photometryfile = load_doric(v, version, doricdatanames, datanames_new)
-        elif '.ppd' in v:
-            photometryfile = load_ppd(v, ppddatanames, datanames_new)
+        matfile, _ = findfiles(os.path.dirname(v), '.mat', [])
+        if len(matfile) == 0:
+            print('no event file!')
+            continue
+        elif len(matfile) > 1:
+            print('there are more than one event file.\n')
+            print(matfile)
+            matfileidx = input('please specify the correct one or enter none if you want to skip.\n')
+            if matfileidx == 'none':
+                continue
+            else:
+                matfile = matfile[int(matfileidx)]
+        else:
+            matfile = matfile[0]
+        filepath = os.path.dirname(matfile)
+        matfile = load_mat(matfile)
 
-        # load mat file
-        matfile = load_mat(matfiles[iD])
-
-        # preprocess photometry data - generate dff & synchronize timestamps w/ matlab file
-        dff, time = preprocessing(photometryfile, matfile, binsize_interpolation,rewardindex)
+        dff = load_pickle(v)
+        dff = dff[0]
 
         # find first lick time after reward delivery
         firstlicktimes = first_event_time_after_reference(matfile['eventlog'], lickindex, rewardindex, 10000)
 
         # plot figure
-        filepath = os.path.dirname(matfiles[iD])
         fig = plt.figure()
         subfigs = fig.subfigures(2,1)
-        plot_signal(dff,time,matfile['eventlog'],[firstlicktimes],window,resolution_signal,clr,['Trials','dF/F (%)'],subfigs.flat[0])
+        plot_signal(dff['dff'],dff['time'],matfile['eventlog'],[firstlicktimes],window,resolution_signal,clr,['Trials','dF/F (%)'],subfigs.flat[0])
         plot_events(matfile['eventlog'],lickindex,[firstlicktimes],window,binsize,resolution,clr,['Trials','Lick rate (Hz)'],subfigs.flat[1])
         fig.savefig(os.path.join(filepath,'psth_'+str(iD)+'.png'))

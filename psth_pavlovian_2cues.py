@@ -6,11 +6,11 @@ import os.path
 
 # parameters to load data
 # the structure of data folder: directory>mousename>foldername>Day
-directory = 'D:/OneDrive - UCSF/Huijeong'
-#directory = 'D:/OneDrive - University of California, San Francisco/Huijeong'
-mouselist = ['HJ_FP_datHT_stGtACR_M6']                                          # list of mousename
+#directory = 'D:/OneDrive - UCSF/Huijeong'
+directory = 'D:/OneDrive - University of California, San Francisco/Huijeong'
+mouselist = ['HJ_FP_datHT_stGtACR_M3']                                          # list of mousename
 foldername = 'pavlovian'                                                        # foldername under mousename folder - to describe task
-daylist = [5,6]                                                                   # If you specify daylist, it will only produce plot for that days. If it is empty, it will run all days available
+daylist = []                                                                   # If you specify daylist, it will only produce plot for that days. If it is empty, it will run all days available
 
 # parameters for photometry data
 version = 5                                                                             # version of doric software; for the future when we update software version
@@ -31,17 +31,17 @@ resolution = 5                                                                  
 clr = ['black']
 
 for mousename in mouselist:
-    #dfffiles,_ = findfiles(os.path.join(directory, mousename,foldername), ['.doric', '.ppd'], daylist)
     dfffiles, _ = findfiles(os.path.join(directory, mousename, foldername), '.p', daylist)
-    matfiles,_ = findfiles(os.path.join(directory, mousename,foldername), '.mat', daylist)
+    idx = [i for i, v in enumerate(dfffiles) if 'optotest' in v]
+    dfffiles = [dfffiles[i] for i in idx]
 
     for iD,v in enumerate(dfffiles):
         print(v)
-        psthfiles, _ = findfiles(os.path.join(directory, mousename, foldername), '.png', [days[iD]])
+        psthfiles, _ = findfiles(os.path.dirname(dfffiles[iD]), '.png',[])
         if sum([f=='psth.png' for f in [os.path.basename(x) for x in psthfiles]]) >0:
             continue
 
-        matfile, _ = findfiles(os.path.join(directory, mousename, foldername), '.mat', [days[iD]])
+        matfile, _ = findfiles(os.path.dirname(dfffiles[iD]), '.mat', [])
         if len(matfile)==0:
             print('no event file!')
             continue
@@ -58,19 +58,13 @@ for mousename in mouselist:
         filepath = os.path.dirname(matfile)
         matfile = load_mat(matfile)
 
-        #if '.doric' in v:
-        #    photometryfile = load_doric(v, version, doricdatanames, datanames_new)
-        #elif '.ppd' in v:
-        #    photometryfile = load_ppd(v, ppddatanames, datanames_new)
-        matfile = load_mat(matfiles[iD])
-        filepath = os.path.dirname(matfiles[iD])
+        filepath = os.path.dirname(v)
 
         dff = load_pickle(v)
         dff = dff[0]
-        #dff, time = preprocessing(photometryfile, matfile, binsize_interpolation,cs1index)
 
         cuetimes = matfile['eventlog'][matfile['eventlog'][:,0]==cs1index,1]
-        cuetimes = cuetimes[range(0,len(cuetimes),2)]
+        #cuetimes = cuetimes[range(0,len(cuetimes),2)]
 
         fig = plt.figure()
         subfigs = fig.subfigures(2,1)
