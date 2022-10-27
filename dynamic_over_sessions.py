@@ -11,7 +11,8 @@ import pingouin as pg
 from statsmodels.stats.anova import AnovaRM
 
 
-onedrivedir = 'D:/OneDrive - University of California, San Francisco'
+onedrivedir = 'D:/OneDrive - UCSF'
+#onedrivedir = 'D:/OneDrive - University of California, San Francisco'
 directory = onedrivedir+'/Huijeong'
 dathetlist = ['M2','M3','M4','M5','M6','M7','M8']
 datwtlist = ['F1']
