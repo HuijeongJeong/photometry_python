@@ -11,8 +11,6 @@ directory = 'D:/OneDrive - UCSF/Huijeong'
 dathetlist = ['M2','M3','M4','M5','M6','M7']
 datwtlist = ['F1']
 wtlist = ['F1','F2','F3','M1','M2','M3']
-#mouselist = ['HJ_FP_datHT_stGtACR_'+i for i in dathetlist] + ['HJ_FP_datWT_stGtACR_'+i for i in datwtlist]\
-#            + ['HJ_FP_WT_stGtACR_'+i for i in wtlist]
 mouselist = ['HJ_FP_datWT_stGtACR_'+i for i in datwtlist] + ['HJ_FP_WT_stGtACR_'+i for i in wtlist]
 foldername = ['randomrewards','pavlovian']
 daylist = []
@@ -145,14 +143,5 @@ plt.yticks([0,0.5,1])
 plt.gcf().set_size_inches(2.25*cm, 3*cm)
 plt.ylabel('\u0394Norm. CS2 response\n(1 = CS1 response)')
 fig.savefig(dir+'//backpropagation_2cues_last50_2.pdf',bbox_inches='tight')
-
-
-fig = plt.figure(figsize=(4, 3))
-[plt.plot(range(0,200),np.subtract(auc[x]['late'][:200],auc[x]['early'][:200]),'grey') for x in mouselist]
-plt.plot(range(0,200),np.mean([np.subtract(auc[x]['late'][:200],auc[x]['early'][:200]) for x in mouselist],axis=0),'black')
-plt.plot([0,200],[0,0],'k:')
-plt.xlabel('Trial')
-plt.ylabel('\u0394AUC (CS2-CS1)')
-fig.savefig(dir+'//backpropagation_delta_2cues_timecourse.png',bbox_inches='tight')
 
 
