@@ -7,7 +7,8 @@ import numpy as np
 from itertools import compress
 import scipy.stats as stat
 
-onedrivedir = 'D:/OneDrive - University of California, San Francisco'
+onedrivedir = 'D:/OneDrive - UCSF'
+#onedrivedir = 'D:/OneDrive - University of California, San Francisco'
 directory = onedrivedir+'/Huijeong'
 dathetlist = ['M2','M3','M4','M5','M6','M7','M8']
 datwtlist = ['F1']
