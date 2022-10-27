@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import scipy.stats as stat
 
 onedrivedir = ['D:/OneDrive - University of California, San Francisco','D:/OneDrive - UCSF']
 icom = 0
@@ -81,6 +82,7 @@ clr_light = ['grey','pink']
 fig = plt.figure(figsize=(4*cm,3*cm))
 rect = 0.6,0.1,0.4,0.9
 rect = [x*0.85 for x in rect]
+data = {}
 ax = fig.add_axes(rect)
 for itype in range(0,2):
     if itype == 0:
@@ -88,6 +90,9 @@ for itype in range(0,2):
     else:
         intype = [i for i, v in enumerate(mouselist) if 'HT' in v]
     [ax.plot(dopamine_inh[im,:]/dopamine_reward[im,1],color = clr_light[itype],linewidth = 0.35) for im in intype]
+    data[itype] = [dopamine_inh[im, -1] / dopamine_reward[im, 1] for im in intype]
+[stats,p] = stat.ttest_ind(data[0],data[1])
+
 for itype in range(0,2):
     if itype == 0:
         intype = [i for i, v in enumerate(mouselist) if np.logical_or('WT' in v, 'wt' in v)]
@@ -96,6 +101,8 @@ for itype in range(0,2):
     ax.errorbar(range(0,4),np.mean([dopamine_inh[im,:]/dopamine_reward[im,1] for im in intype],0),
                  np.std([dopamine_inh[im,:]/dopamine_reward[im,1] for im in intype],0)/np.sqrt(len(intype)),
                  color=clr[itype],linewidth=0.5,capsize=3)
+
+
 ax.plot([-0.5,3.5],[0,0],linewidth=0.35,linestyle=':',color='k')
 plt.xticks(range(0,4),labels=[-0.25,0.25,0.75,1.25],rotation=45)
 plt.yticks([-1,-0.5,0,0.5])
@@ -123,6 +130,9 @@ for itype in range(0,2):
     ax.errorbar(0.5+itype,np.mean([dopamine_reward[im,1]/dopamine_reward[im,0] for im in intype]),
                  np.std([dopamine_reward[im,1]/dopamine_reward[im,0] for im in intype])/np.sqrt(len(mouselist)),
                 color=clr[itype],capsize=3,linewidth=0.5)
+    data[itype] = [dopamine_reward[im,1]/dopamine_reward[im,0] for im in intype]
+[stats, p] = stat.ttest_ind(data[0], data[1])
+
 plt.xticks([0.5,1.5], labels=['DAT-cre','WT'],rotation=45)
 plt.ylabel('Norm. reward response\n(1 = random reward)')
 ax.spines['top'].set_visible(False)

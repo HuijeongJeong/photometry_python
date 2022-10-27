@@ -41,3 +41,20 @@ def peaksearch(lst,threshold,option):
 
     return peakidx, peakval
 
+
+def lnregress(X, y):
+    from scipy import stats
+    from sklearn.linear_model import LinearRegression
+    import numpy as np
+    lm = LinearRegression()
+    lm.fit(X, y)
+    params = np.append(lm.intercept_, lm.coef_)
+    predictions = lm.predict(X)
+    new_X = np.append(np.ones((len(X), 1)), X, axis=1)
+    M_S_E = (sum((y - predictions) ** 2)) / (len(new_X) - len(new_X[0]))
+    v_b = M_S_E * (np.linalg.inv(np.dot(new_X.T, new_X)).diagonal())
+    s_b = np.sqrt(v_b)
+    tstat = params / s_b
+    p_val = [2 * (1 - stats.t.cdf(np.abs(i), (len(new_X) - len(new_X[0])))) for i in tstat]
+
+    return p_val, tstat, params

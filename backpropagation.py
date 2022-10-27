@@ -5,6 +5,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import scipy.stats as stats
 # from sklearn.linear_model import lrg
 
 #directory = 'D:/OneDrive - UCSF/Huijeong'
@@ -45,7 +46,7 @@ for im, mousename in enumerate(mouselist):
         dff = load_pickle(v)
         dff = dff[0]
 
-        signal, _, _, time = align_signal_to_reference(dff['dff'], dff['time'], matfile['eventlog'], cs1index, [-2000, 3000], 0)
+        signal, _, _, time = align_signal_to_reference(dff['dff'], dff['time'], matfile['eventlog'], cs1index, [-2000, 3000], 0, 0)
         cs1time = matfile['eventlog'][matfile['eventlog'][:,0]==cs1index,1]
         early_temp = calculate_auc(dff['dff'], dff['time']/1000, cs1time[range(0,len(cs1time),2)]/1000, [0,1])
         late_temp = calculate_auc(dff['dff'],dff['time']/1000,cs1time[range(1,len(cs1time),2)]/1000,[0,1])
@@ -110,6 +111,7 @@ rect = 0.6,0.1,0.4,0.9
 rect = [x*0.85 for x in rect]
 ax = fig.add_axes(rect)
 data = [np.divide(np.nanmean(np.subtract(auc[x]['late'][:50],auc[x]['early'][:50])),np.nanmean(auc[x]['early'][150:200])) for x in mouselist]
+tstat,p = stats.ttest_1samp(data,0)
 plt.bar(0.5,np.mean(data),width=1,color='grey')
 plt.errorbar(0.5,np.mean(data), np.std(data)/np.sqrt(len(mouselist)),color='k',capsize=3,linewidth=0.5)
 [plt.scatter(random.uniform(0,0.8)+0.1,x,1,'k') for x in data]
