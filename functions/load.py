@@ -223,3 +223,33 @@ def load_pickle(filename):
 			except EOFError:
 				break
 	return objects
+
+def load_dandi_url(dandiset_id,animalname,daylist=None):
+	from dandi.dandiapi import DandiAPIClient
+	import numpy as np
+
+	url = []
+	path = []
+	with DandiAPIClient.for_dandi_instance("dandi") as client:
+		dandiset = client.get_dandiset(dandiset_id, 'draft')
+		for asset in dandiset.get_assets_by_glob(animalname):
+			url = np.append(url, asset.get_content_url(follow_redirects=1, strip_query=True))
+			path = np.append(path,asset.get_metadata().path)
+
+
+	if not daylist==None:
+		day = [int(x.split('Day')[1].split('-')[0]) for x in path]
+		url = [y for x,y in sorted(zip(day,url)) if x in daylist]
+		path = [y for x,y in sorted(zip(day,path)) if x in daylist]
+
+	return url, path
+
+
+def load_nwb(url):
+	from pynwb import NWBHDF5IO
+
+	with NWBHDF5IO(url, mode='r',driver='ros3') as io:
+		nwbfile = io.read()
+
+	return nwbfile
+
