@@ -4,11 +4,8 @@ from functions.general import *
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-from itertools import compress
 import scipy.stats as stat
 import pandas as pd
-import pingouin as pg
-from statsmodels.stats.anova import AnovaRM
 
 
 onedrivedir = 'D:/OneDrive - UCSF'
