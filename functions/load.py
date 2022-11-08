@@ -236,20 +236,44 @@ def load_dandi_url(dandiset_id,animalname,daylist=None):
 			url = np.append(url, asset.get_content_url(follow_redirects=1, strip_query=True))
 			path = np.append(path,asset.get_metadata().path)
 
+	day = [int(x.split('Day')[1].split('-')[0]) for x in path]
+	url = [y for x, y in sorted(zip(day, url))]
+	path = [y for x, y in sorted(zip(day, path))]
+
 
 	if not daylist==None:
-		day = [int(x.split('Day')[1].split('-')[0]) for x in path]
-		url = [y for x,y in sorted(zip(day,url)) if x in daylist]
-		path = [y for x,y in sorted(zip(day,path)) if x in daylist]
+		url = [y for x,y in zip(day,url) if x in daylist]
+		path = [y for x,y in zip(day,path) if x in daylist]
 
 	return url, path
 
 
-def load_nwb(url):
-	from pynwb import NWBHDF5IO
+def load_nwb(url,namespacepath,varlist):
+	from pynwb import NWBHDF5IO,load_namespaces
+	import numpy as np
 
-	with NWBHDF5IO(url, mode='r',driver='ros3') as io:
-		nwbfile = io.read()
+	for ipath in namespacepath:
+		load_namespaces(ipath)
 
-	return nwbfile
+	io = NWBHDF5IO(url, mode='r', driver='ros3')
+	nwbfile = io.read()
+
+	results = {}
+	for i in varlist:
+		if i[0] =='a': #acquisition
+			fields = nwbfile.acquisition[i[1]]._get_fields()
+			subnwb = nwbfile.acquisition[i[1]]
+		elif i[0] == 'p': #processing
+			fields = nwbfile.processing[i[1]][i[2]]._get_fields()
+			subnwb = nwbfile.processing[i[1]][i[2]]
+		else:
+			fields = nwbfile.i[1]._get_fields()
+			subnwb = nwbfile.i[1]
+		results[i[-1]] = {}
+		for f in fields:
+			if not subnwb.fields.get(f)==None:
+				results[i[-1]][f] = subnwb.fields.get(f)
+				if not np.shape(results[i[-1]][f])==():
+					results[i[-1]][f] = results[i[-1]][f][:]
+	return results, nwbfile
 

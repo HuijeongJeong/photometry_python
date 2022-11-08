@@ -42,13 +42,12 @@ def align_events_to_reference(eventlog,eventindex,referenceindex,window,binsize,
 
     return aligned_event, meanpsth, sempsth, psthtime
 
-def align_signal_to_reference(signal,timestamp,eventlog,referenceindex,window,resolution,baselinenorm):
+def align_signal_to_reference(signal,timestamp,eventtime,eventindexseries,referenceindex,window,resolution,baselinenorm):
     # align continuous signal (like photometry trace) to the other event
     # this code assumes the signal was collected in a constant rate
 
     # signal: signal you want to align
     # timestamps: timestamps of signal
-    # eventlog: eventlog from matlab data file
     # referenceindex
     #   - if referenceindex is an integer: the index of reference event you want to align to
     #   - if reference is an array: the time series of reference event you want to align to
@@ -62,7 +61,7 @@ def align_signal_to_reference(signal,timestamp,eventlog,referenceindex,window,re
     import scipy.ndimage as nd
 
     if isinstance(referenceindex, int):
-        reference_times = eventlog[eventlog[:, 0] == referenceindex, 1]
+        reference_times = eventtime[eventindexseries == referenceindex]
     else:
         reference_times = referenceindex
 
@@ -101,7 +100,7 @@ def align_signal_to_reference(signal,timestamp,eventlog,referenceindex,window,re
 
     return aligned_event, meanpsth, sempsth, psthtime
 
-def first_event_time_after_reference(eventlog,eventindex,referenceindex,window):
+def first_event_time_after_reference(eventindexseries,eventtime,eventindex,referenceindex,window):
     # find time when event happens for the first time after each incidence of reference event
     # both of them are events that are stored in matlab eventlog
 
@@ -114,10 +113,10 @@ def first_event_time_after_reference(eventlog,eventindex,referenceindex,window):
     import numpy as np
 
     if isinstance(referenceindex, int):
-        reference_times = eventlog[eventlog[:, 0] == referenceindex, 1]
+        reference_times = eventtime[eventindexseries == referenceindex]
     else:
         reference_times = referenceindex
-    event_times = eventlog[eventlog[:,0]==eventindex,1]
+    event_times = eventtime[eventindexseries==eventindex]
     nrefs = len(reference_times)
 
     first_eventtime = np.full(nrefs,np.nan)
