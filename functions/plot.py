@@ -1,4 +1,4 @@
-def align_events_to_reference(eventlog,eventindex,referenceindex,window,binsize,resolution):
+def align_events_to_reference(eventtime,eventindexseries,eventindex,referenceindex,window,binsize,resolution):
     # align instances of one event to the other event
     # both of them are events that are stored in matlab eventlog
 
@@ -17,10 +17,10 @@ def align_events_to_reference(eventlog,eventindex,referenceindex,window,binsize,
     import scipy.ndimage as nd
 
     if isinstance(referenceindex, int):
-        reference_times = eventlog[eventlog[:,0]==referenceindex,1]
+        reference_times = eventtime[eventindexseries==referenceindex]
     else:
         reference_times = referenceindex
-    event_times = eventlog[eventlog[:,0]==eventindex,1]
+    event_times = eventtime[eventindexseries==eventindex]
 
     nbins = int(np.diff(window) / binsize)
     nrefs = len(reference_times)
@@ -100,7 +100,7 @@ def align_signal_to_reference(signal,timestamp,eventtime,eventindexseries,refere
 
     return aligned_event, meanpsth, sempsth, psthtime
 
-def first_event_time_after_reference(eventindexseries,eventtime,eventindex,referenceindex,window):
+def first_event_time_after_reference(eventtime,eventindexseries,eventindex,referenceindex,window):
     # find time when event happens for the first time after each incidence of reference event
     # both of them are events that are stored in matlab eventlog
 
@@ -143,25 +143,25 @@ def calculate_auc(signal,signaltime,reference_times,window):
     auc = [np.nan if x==0 else y for x,y in zip(n,auc)]
     return auc
 
-def calculate_numevents(eventlog,eventindex,referenceindex,window):
+def calculate_numevents(eventtime,eventindexseries,eventindex,referenceindex,window):
     # calculate number of events during specified window from reference_event
 
     import numpy as np
     if isinstance(referenceindex, int):
-        reference_times = eventlog[eventlog[:, 0] == referenceindex, 1]
+        reference_times = eventtime[eventindexseries == referenceindex]
     else:
         reference_times = referenceindex
-    event_times = eventlog[eventlog[:,0]==eventindex,1]
+    event_times = eventtime[eventindexseries==eventindex]
     nevent = [np.sum(np.logical_and(event_times>=i+window[0],event_times<i+window[1])) for i in reference_times]
     return nevent
 
 
-def plot_events(eventlog,eventindex,referenceindex,window,binsize,resolution,clr,ylabels,fig):
+def plot_events(eventtime,eventindexseries,eventindex,referenceindex,window,binsize,resolution,clr,ylabels,fig):
     import numpy as np
     (ax1, ax2) = fig.subplots(2, 1)
     itrial = 1
     for i,v in enumerate(referenceindex):
-        aligned_event, meanpsth, sempsth, psthtime = align_events_to_reference(eventlog, eventindex, v, window, binsize, resolution)
+        aligned_event, meanpsth, sempsth, psthtime = align_events_to_reference(eventtime,eventindexseries, eventindex, v, window, binsize, resolution)
         ax1.scatter(np.concatenate(aligned_event)/1000,np.concatenate([np.ones(np.shape(v),dtype=int)*(i+itrial) for i,v in enumerate(aligned_event)]),
                     c=clr[i],s=0.5,edgecolor=None)
         ax2.fill_between(psthtime/1000,meanpsth+sempsth,meanpsth-sempsth,alpha=0.3,facecolor=clr[i],linewidth=0)
@@ -184,13 +184,13 @@ def plot_events(eventlog,eventindex,referenceindex,window,binsize,resolution,clr
     return ax1, ax2
 
 
-def plot_signal(signal,timestamp,eventlog,referenceindex,window,resolution,clr,ylabels,fig,baselinenorm):
+def plot_signal(signal,timestamp,eventtime,eventindexseries,referenceindex,window,resolution,clr,ylabels,fig,baselinenorm):
     import numpy as np
     import matplotlib.pyplot as plt
     (ax1, ax2) = fig.subplots(2, 1)
     itrial = 1
     for i, v in enumerate(referenceindex):
-        aligned_event, meanpsth, sempsth, psthtime = align_signal_to_reference(signal,timestamp,eventlog,v,window,resolution,baselinenorm)
+        aligned_event, meanpsth, sempsth, psthtime = align_signal_to_reference(signal,timestamp,eventtime,eventindexseries,v,window,resolution,baselinenorm)
         dx = (psthtime[1] - psthtime[0]) / 2
         im = ax1.imshow(aligned_event, extent = [(window[0]-dx)/1000, (window[-1]+dx)/1000, itrial-0.5, np.shape(aligned_event)[0]+itrial+0.5],
                    aspect='auto')
