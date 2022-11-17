@@ -227,6 +227,7 @@ def load_pickle(filename):
 def load_dandi_url(dandiset_id,animalname,daylist=None):
 	from dandi.dandiapi import DandiAPIClient
 	import numpy as np
+	import re
 
 	url = []
 	path = []
@@ -236,7 +237,7 @@ def load_dandi_url(dandiset_id,animalname,daylist=None):
 			url = np.append(url, asset.get_content_url(follow_redirects=1, strip_query=True))
 			path = np.append(path,asset.get_metadata().path)
 
-	day = [int(x.split('Day')[1].split('-')[0]) for x in path]
+	day = [int(re.split('.nwb|-',x.split('Day')[1])[0]) for x in path]
 	url = [y for x, y in sorted(zip(day, url))]
 	path = [y for x, y in sorted(zip(day, path))]
 
