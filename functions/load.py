@@ -238,13 +238,12 @@ def load_dandi_url(dandiset_id,animalname,daylist=None):
 			path = np.append(path,asset.get_metadata().path)
 
 	day = [int(re.split('.nwb|-',x.split('Day')[1])[0]) for x in path]
-	url = [y for x, y in sorted(zip(day, url))]
-	path = [y for x, y in sorted(zip(day, path))]
-
-
 	if not daylist==None:
 		url = [y for x,y in zip(day,url) if x in daylist]
 		path = [y for x,y in zip(day,path) if x in daylist]
+
+	url = [y for x, y in sorted(zip(day, url))]
+	path = [y for x, y in sorted(zip(day, path))]
 
 	return url, path
 
