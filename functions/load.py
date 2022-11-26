@@ -87,6 +87,13 @@ def load_mat(filename):
 	return _check_vars(data)
 
 def load_doric(filename,version,datanames,datanames_new):
+	# loading doric file directly, this is modified version of code from doric
+	#
+	# filename: doric file (.doric) name
+	# version: doric neuroscience studio version; this needs to be 5 for now;
+	# this is for generalizing function across files that recorded using different version of software
+	# datanames: how each data is saved in raw doric file
+	# datanames_new: how we want to call them - for generalization with photometry file from pyphotometry system
 	import h5py
 	import numpy as np
 
@@ -110,7 +117,6 @@ def load_doric(filename,version,datanames,datanames_new):
 
 	# Extact Data from a doric file
 	def ExtractDataAcquisition(filename, version):
-		# version: doric neuroscience studio version
 		output = {}
 		with h5py.File(filename, 'r') as h:
 			# print(filename)
@@ -130,6 +136,12 @@ def load_doric(filename,version,datanames,datanames_new):
 	return data
 
 def load_ppd(filename,datanames,datanames_new):
+	# loading pyphotometry file directly, this is modified version of code from pyphotometry
+	#
+	# filename: pyphotometry (.py) file name
+	# datanames: how each data is saved in raw py file
+	# datanames_new: how we want to call them - for generalization with photometry file from doric system
+
 	import json
 	import numpy as np
 	from scipy.signal import butter, filtfilt
@@ -214,6 +226,7 @@ def load_ppd(filename,datanames,datanames_new):
 	return data
 
 def load_pickle(filename):
+	# load pickle file
 	import pickle
 	objects = []
 	with (open(filename, "rb")) as openfile:
@@ -225,6 +238,11 @@ def load_pickle(filename):
 	return objects
 
 def load_dandi_url(dandiset_id,animalname,daylist=None):
+	# load url in dandi server for specific sessions of given animal
+	# dandiset_id: dandi set id, which is given by dandi when you upload the data
+	# animalname: name of animal, it needs to be the same with one on dandi server
+	# daylist: indicator for session (the session name needs to contain 'DayXX')
+	# if you don't have daylist, it will give urls for all sessions of given animal
 	from dandi.dandiapi import DandiAPIClient
 	import numpy as np
 	import re
@@ -241,14 +259,22 @@ def load_dandi_url(dandiset_id,animalname,daylist=None):
 	if not daylist==None:
 		url = [y for x,y in zip(day,url) if x in daylist]
 		path = [y for x,y in zip(day,path) if x in daylist]
+		day = [x for x in day if x in daylist]
 
-	url = [y for x, y in sorted(zip(day, url))]
-	path = [y for x, y in sorted(zip(day, path))]
+	url = [y for x, y in sorted(zip(day, url))] # this is url of each session
+	path = [y for x, y in sorted(zip(day, path))] # this is file name, which follows this: sub_(animalname)_ses_(sessionname)
 
 	return url, path
 
 
 def load_nwb(url,namespacepath,varlist):
+	# load nwb file using url - this needs to be developed more to be able to load saved nwb file
+	# url: dandi server url
+	# namespacepath: path for namespace of namboodirilab extension file
+	# varlist: the list of variable you want to get
+	# (a,XX): variable XX from acquisition field
+	# (p,XX): variable XX from processing field
+
 	from pynwb import NWBHDF5IO,load_namespaces
 	import numpy as np
 

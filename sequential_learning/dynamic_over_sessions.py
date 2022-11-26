@@ -198,4 +198,3 @@ ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 fig.savefig(onedrivedir+'//figures\manuscript\dopamine_contingency//revision/fig6_new/anticipatory_lick_cs1_'+str(nblock)+'_block.pdf',bbox_inches='tight')
 
-pg.mixed_anova(dv='lick', between='type', within='session', subject ='mouse',data = dataframe)
