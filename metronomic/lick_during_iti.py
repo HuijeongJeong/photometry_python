@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stat
 import pandas as pd
+import os
 
 # name spaces for namlab nwb extension
-namespaces = ["C:\\Users\\Huijeong Jeong\\PycharmProjects\\photometry\\ndx-photometry-namlab.namespace.yaml",
-              "C:\\Users\\Huijeong Jeong\\PycharmProjects\\photometry\\ndx-eventlog-namlab.namespace.yaml"]
+namespaces = [os.path.join(os.path.dirname(os.getcwd()),'ndx-photometry-namlab.namespace.yaml'),
+              os.path.join(os.path.dirname(os.getcwd()),'ndx-eventlog-namlab.namespace.yaml')]
 
 # DANDI set id
 dandiset_id = '000351'
