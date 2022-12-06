@@ -80,12 +80,12 @@ def align_signal_to_reference(signal,timestamp,eventtime,eventindexseries,refere
     for i, v in enumerate(reference_times):
         closestframe = np.nanargmin(np.abs(timestamp-v))
         if not np.isnan(baselinewindow).any():
-            if len(baselinewindow)==2:
+            if len(np.array(baselinewindow).shape)==1:
                 framewindow_bl = [int(i) for i in np.round(baselinewindow / frameinterval)]
-                basemean = np.mean(signal[np.arange(framewindow_bl[0],framewindow_bl[1]+1)+closestframe])
+                basemean = np.nanmean(signal[np.arange(framewindow_bl[0],framewindow_bl[1]+1)+closestframe])
             else:
                 framewindow_bl = [int(i) for i in np.round(baselinewindow[i] / frameinterval)]
-                basemean = np.mean(signal[np.arange(framewindow_bl[0], framewindow_bl[1] + 1) + closestframe])
+                basemean = np.nanmean(signal[np.arange(framewindow_bl[0], framewindow_bl[1] + 1) + closestframe])
         else:
             basemean = 0
         if framewindow[0]+closestframe<0:
