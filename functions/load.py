@@ -275,15 +275,29 @@ def load_nwb(url,namespacepath,varlist):
 	# (a,XX): variable XX from acquisition field
 	# (p,XX): variable XX from processing field
 
-	from pynwb import NWBHDF5IO,load_namespaces
 	import numpy as np
+	import fsspec
+	import h5py
+	from pynwb import load_namespaces, NWBHDF5IO
+	from fsspec.implementations.cached import CachingFileSystem
 
 	for ipath in namespacepath:
 		load_namespaces(ipath)
 
-	io = NWBHDF5IO(url, mode='r', driver='ros3')
-	nwbfile = io.read()
+	if 'http' in url:
+		fs = CachingFileSystem(
+			fs=fsspec.filesystem("http"),
+			cache_storage="nwb-cache",  # Local folder for the cache
+		)
+		f = fs.open(url, "rb")
+		file = h5py.File(f)
+		io = NWBHDF5IO(file=file, load_namespaces=True)
+	else:
+		io = NWBHDF5IO(url,'r',load_namespaces=True)
 
+	io = NWBHDF5IO(url, mode='r', driver='ros3')
+
+	nwbfile = io.read()
 	results = {}
 	for i in varlist:
 		if i[0] =='a': #acquisition
@@ -301,5 +315,7 @@ def load_nwb(url,namespacepath,varlist):
 				results[i[-1]][f] = subnwb.fields.get(f)
 				if not np.shape(results[i[-1]][f])==():
 					results[i[-1]][f] = results[i[-1]][f][:]
+	io.close()
+	file.close()
 	return results, nwbfile
 
