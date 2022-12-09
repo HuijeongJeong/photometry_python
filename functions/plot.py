@@ -108,7 +108,7 @@ def align_signal_to_reference(signal,timestamp,eventtime,eventindexseries,refere
 
     return aligned_event, meanpsth, sempsth, psthtime
 
-def first_event_time_after_reference(eventtime,eventindexseries,eventindex,referenceindex,window):
+def first_event_time_after_reference(eventindexseries,eventtime,eventindex,referenceindex,window):
     # find time when event happens for the first time after each incidence of reference event
     # both of them are events that are stored in matlab eventlog
 
@@ -152,7 +152,7 @@ def calculate_auc(signal,signaltime,reference_times,window):
     auc = [np.nan if x==0 else y for x,y in zip(n,auc)]
     return auc
 
-def calculate_numevents(eventtime,eventindexseries,eventindex,referenceindex,window):
+def calculate_numevents(eventtime,eventindexseries,eventindex,referenceindex,window,referencetype='index'):
     # calculate number of events during specified window from reference_event
 
     # eventtime: second row of matlab eventlog file
@@ -164,9 +164,13 @@ def calculate_numevents(eventtime,eventindexseries,eventindex,referenceindex,win
     # window: window for this calculation around each reference time
 
     import numpy as np
-    if isinstance(referenceindex, int):
-        reference_times = eventtime[eventindexseries == referenceindex]
-    else:
+    if referencetype=='index':
+        if isinstance(referenceindex,int):
+            inref = eventindexseries == referenceindex
+        else:
+            inref = [True if x in referenceindex else False for x in eventindexseries]
+        reference_times = eventtime[inref]
+    elif referencetype=='time':
         reference_times = referenceindex
     event_times = eventtime[eventindexseries==eventindex]
     nevent = [np.sum(np.logical_and(event_times>=i+window[0],event_times<i+window[1])) for i in reference_times]
