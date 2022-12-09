@@ -1,4 +1,4 @@
-import functions.load as fnl
+import functions.load2 as fnl
 import functions.plot as fnp
 import matplotlib.pyplot as plt
 import numpy as np
